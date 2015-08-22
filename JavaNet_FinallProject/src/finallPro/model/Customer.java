@@ -1,6 +1,8 @@
 package finallPro.model;
 
-public class Customer {
+import java.util.concurrent.ThreadFactory;
+
+public class Customer implements ThreadFactory{
 	private String name;
 	private String whileWaiting;
 	
@@ -24,6 +26,12 @@ public class Customer {
 
 	public void setWhileWaiting(String whileWaiting) {
 		this.whileWaiting = whileWaiting;
+	}
+
+	@Override
+	public Thread newThread(Runnable arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
