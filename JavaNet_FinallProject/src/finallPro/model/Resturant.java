@@ -2,6 +2,7 @@ package finallPro.model;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Resturant {
@@ -27,8 +28,8 @@ public class Resturant {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
-	
 	
 	public String getName() {
 		return name;
