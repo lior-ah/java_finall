@@ -1,5 +1,7 @@
 package finallPro.model;
 
+import java.io.IOException;
+import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class Resturant {
@@ -13,8 +15,19 @@ public class Resturant {
 		this.name = name;
 		this.numOfSeats = numOfSeats;
 		this.maxCustomersPerDay = maxCustomersPerDay;
+		
+		FileHandler restHandler;
+		try {
+			restHandler = new FileHandler("Resturant_" + name + ".txt");
+			restHandler.setFormatter(new MyFormatter());
+			theLogger.addHandler(restHandler);
+			theLogger.setUseParentHandlers(false);
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
 	
 	
 	public String getName() {

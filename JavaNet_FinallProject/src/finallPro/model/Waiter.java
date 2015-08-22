@@ -21,7 +21,7 @@ public class Waiter {
 		FileHandler waiterHandler;
 		try {
 			waiterHandler = new FileHandler("Waiter_" + name + ".txt");
-			waiterHandler.setFilter(new ObjectFilter(this));
+			waiterHandler.setFilter(new WaiterFilter(this.name));
 			waiterHandler.setFormatter(new MyFormatter());
 			theLogger.addHandler(waiterHandler);
 			theLogger.setUseParentHandlers(false);
