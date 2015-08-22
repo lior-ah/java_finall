@@ -30,6 +30,12 @@ public class Read {
 		Element el = (Element) rest;
 		String s = el.getAttribute("name");
 		System.out.println(s);
+		
+		Resturant resta = new Resturant("blabla", 20, 200);
+		Customer cust = new Customer("abdc", "eating");
+		cust.doSomething();
+		Customer cust1 = new Customer("abcd", "playing");
+		cust1.doSomething();
 
 	}
 }
