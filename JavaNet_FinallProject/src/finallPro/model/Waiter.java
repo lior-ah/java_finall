@@ -10,6 +10,8 @@ public class Waiter {
 	private int maxWaitersInShift;
 	private int maxCustomersCuncurrentPerWaiter;
 	private int maxCustomersPerShift;
+	private int numOfCustomers;
+	private Customer[] customers;
 	
 	public Waiter(String name, int maxWaitersInShift, int maxCustomersCuncurrentPerWaiter, int maxCustomersPerShift) {
 		super();
@@ -17,6 +19,8 @@ public class Waiter {
 		this.maxWaitersInShift = maxWaitersInShift;
 		this.maxCustomersCuncurrentPerWaiter = maxCustomersCuncurrentPerWaiter;
 		this.maxCustomersPerShift = maxCustomersPerShift;
+		this.customers = new Customer[maxCustomersCuncurrentPerWaiter];
+		this.numOfCustomers = 0;
 		
 		FileHandler waiterHandler;
 		try {
@@ -30,6 +34,10 @@ public class Waiter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void addCustomerToWaiter(Customer customer){
+		this.customers[numOfCustomers] = customer;
 	}
 
 	public int getMaxWaitersInShift() {
