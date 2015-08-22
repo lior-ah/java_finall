@@ -23,15 +23,14 @@ public class Read {
 		
 		doc.getDocumentElement().normalize();
 		
-		System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-		
 		NodeList restt = doc.getElementsByTagName("Resturant");
 		Node rest = restt.item(0);
 		Element el = (Element) rest;
 		String s = el.getAttribute("name");
-		System.out.println(s);
+		int s1 = Integer.parseInt(el.getAttribute("numOfSeats"));
+		int s2 = Integer.parseInt(el.getAttribute("maxCustomersPerDay"));
 		
-		Resturant resta = new Resturant("blabla", 20, 200);
+		Resturant resta = new Resturant(s, s1, s2);
 		Customer cust = new Customer("abdc", "eating");
 		cust.doSomething();
 		Customer cust1 = new Customer("abcd", "playing");
