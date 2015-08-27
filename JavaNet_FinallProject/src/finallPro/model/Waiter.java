@@ -1,26 +1,20 @@
 package finallPro.model;
 
 import java.io.IOException;
+import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
-public class Waiter {
+public class Waiter extends Thread{
 	private static Logger theLogger = Logger.getLogger("myLogger");
+	private Resturant theResturant;
 	private String name;
-	private int maxWaitersInShift;
-	private int maxCustomersCuncurrentPerWaiter;
-	private int maxCustomersPerShift;
-	private int numOfCustomers;
-	private Customer[] customers;
+	private Vector<Customer> allCustomers = new Vector<Customer>();
 	
-	public Waiter(String name, int maxWaitersInShift, int maxCustomersCuncurrentPerWaiter, int maxCustomersPerShift) {
+	public Waiter(String name, Resturant theResturant) {
 		super();
 		this.name = name;
-		this.maxWaitersInShift = maxWaitersInShift;
-		this.maxCustomersCuncurrentPerWaiter = maxCustomersCuncurrentPerWaiter;
-		this.maxCustomersPerShift = maxCustomersPerShift;
-		this.customers = new Customer[maxCustomersCuncurrentPerWaiter];
-		this.numOfCustomers = 0;
+		this.theResturant = theResturant;
 		
 		FileHandler waiterHandler;
 		try {
@@ -36,33 +30,54 @@ public class Waiter {
 		}
 	}
 	
-	public void addCustomerToWaiter(Customer customer){
-		this.customers[numOfCustomers] = customer;
+	public Resturant getTheResturant() {
+		return theResturant;
 	}
 
-	public int getMaxWaitersInShift() {
-		return maxWaitersInShift;
+	public void setTheResturant(Resturant theResturant) {
+		this.theResturant = theResturant;
 	}
 
-	public void setMaxWaitersInShift(int maxWaitersInShift) {
-		this.maxWaitersInShift = maxWaitersInShift;
+	public void addCustomer(Customer newCustomer) {
+		allCustomers.add(newCustomer);
+		newCustomer.start();
 	}
 
-	public int getMaxCustomersCuncurrentPerWaiter() {
-		return maxCustomersCuncurrentPerWaiter;
+	private void bringCheck() throws InterruptedException {
+		// TODO Auto-generated method stub
+		System.out.println("Waiter " + name + ": Going to bring the check");
+		Thread.sleep((int) (Math.floor(Math.random() * 10000) + 1000));
 	}
 
-	public void setMaxCustomersCuncurrentPerWaiter(int maxCustomersCuncurrentPerWaiter) {
-		this.maxCustomersCuncurrentPerWaiter = maxCustomersCuncurrentPerWaiter;
+	private void bringFood() throws InterruptedException {
+		// TODO Auto-generated method stub
+		System.out.println("Waiter " + name + ": Going to bring the food");
+		Thread.sleep((int) (Math.floor(Math.random() * 10000) + 1000));
 	}
 
-	public int getMaxCustomersPerShift() {
-		return maxCustomersPerShift;
+	private void takeOrder() throws InterruptedException {
+		// TODO Auto-generated method stub
+		System.out.println("Waiter " + name + ": Going to take the order");
+		Thread.sleep((int) (Math.floor(Math.random() * 10000) + 1000));
 	}
 
-	public void setMaxCustomersPerShift(int maxCustomersPerShift) {
-		this.maxCustomersPerShift = maxCustomersPerShift;
+	private void getMenu() throws InterruptedException {
+		// TODO Auto-generated method stub
+		System.out.println("Waiter " + name + ": Bring menu to customer");
+		Thread.sleep((int) (Math.floor(Math.random() * 10000) + 1000));
 	}
 	
-	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		try {
+			getMenu();
+			takeOrder();
+			bringFood();
+			bringCheck();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
