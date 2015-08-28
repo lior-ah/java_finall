@@ -111,9 +111,9 @@ public class Resturant {
 			for(int i = 0; i < workingWaiters.size(); i++)
 				if(tmp.getServedCustomerNum() > workingWaiters.get(i).getServedCustomerNum())
 					tmp = workingWaiters.get(i);
+			newCustomer.setTheWaiter(tmp);
 			diningCustomers.add(newCustomer);
 			tmp.addCustomer(newCustomer);
-			newCustomer.setTheWaiter(tmp);
 		}
 		else waitingCustomers.add(newCustomer);
 	}
@@ -140,6 +140,7 @@ public class Resturant {
 				if(tmp.getServedCustomerNum() > workingWaiters.get(i).getServedCustomerNum())
 					tmp = workingWaiters.get(i);
 			Customer firstCustomer = waitingCustomers.poll();
+			firstCustomer.setTheWaiter(tmp);
 			diningCustomers.add(firstCustomer);
 			tmp.addCustomer(firstCustomer);
 		}
