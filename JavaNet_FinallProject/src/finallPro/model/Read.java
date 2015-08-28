@@ -30,11 +30,21 @@ public class Read {
 		int s1 = Integer.parseInt(el.getAttribute("numOfSeats"));
 		int s2 = Integer.parseInt(el.getAttribute("maxCustomersPerDay"));
 		
-		Resturant resta = new Resturant(s, s1, s2);
-		Customer cust = new Customer("abdc", "eating");
-		cust.doSomething();
-		Customer cust1 = new Customer("abcd", "playing");
-		cust1.doSomething();
+		Resturant resta = new Resturant(s, s1, s2, 2, 2, 2);
+		Waiter[] ws = new Waiter[4];
+		for(int i = 0; i < ws.length; i++){
+			ws[i] = new Waiter("Waiter_" + i, resta);
+			resta.addWaiter(ws[i]);
+		}
+		Customer[] custs = new Customer[5];
+		for(int i = 0; i < custs.length; i++){
+			custs[i] = new Customer("cust_" + i, "eating");
+			resta.addCustomer(custs[i]);
+		}
+		//Customer cust = new Customer("abdc", "eating");
+		//cust.doSomething();
+		//Customer cust1 = new Customer("abcd", "playing");
+		//cust1.doSomething();
 
 	}
 }

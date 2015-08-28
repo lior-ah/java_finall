@@ -35,6 +35,15 @@ public class Waiter extends Thread{
 		}
 	}
 	
+	public void customerDone(Customer c){
+		allCustomers.remove(c);
+		theResturant.customerDone(c);
+	}
+	
+	public int getServedCustomerNum(){
+		return allCustomers.size();
+	}
+	
 	public String getTheName() {
 		return name;
 	}
@@ -83,7 +92,7 @@ public class Waiter extends Thread{
 		if (firstCustomer != null) {
 
 			System.out.println("Waiter is notifying customer #"
-					+ firstCustomer.getId());
+					+ firstCustomer.getId() + " at stage " + firstCustomer.getStage());
 			synchronized (firstCustomer) {
 				firstCustomer.notifyAll();
 			}
@@ -96,7 +105,7 @@ public class Waiter extends Thread{
 
 				wait(); // wait till the customer finishes
 
-				System.out.println("Waiter was announced that  customer #"
+				System.out.println("Waiter was announced that customer #"
 						+ firstCustomer.getId() + " is finished");
 
 			} catch (InterruptedException e) {
@@ -106,7 +115,7 @@ public class Waiter extends Thread{
 	}
 
 	public void run() {
-		System.out.println("In Waiter::run");
+		System.out.println("Waiter #" + getId() + " " + name + " Strated its shift");
 		while (isInShift) {
 			if (!waitingCustomers.isEmpty()) {
 				notifyCustomer();

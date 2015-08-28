@@ -8,7 +8,7 @@ import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
-public class Resturant implements Runnable{
+public class Resturant {
 	private static Logger theLogger = Logger.getLogger("myLogger");
 	private String name;
 	private int numOfSeats;
@@ -17,16 +17,19 @@ public class Resturant implements Runnable{
 	private int maxCustomersCuncurrentPerWaiter;
 	private int maxCustomersPerShift;
 	private boolean isOpen = true;
-	private Vector<Waiter> allWaiters = new Vector<Waiter>();
+	private Vector<Waiter> workingWaiters = new Vector<Waiter>();
 	private Queue<Waiter> waitingWaiters = new LinkedList<Waiter>();
-	private Vector<Customer> allCustomers = new Vector<Customer>();
+	private Vector<Customer> diningCustomers = new Vector<Customer>();
 	private Queue<Customer> waitingCustomers = new LinkedList<Customer>();
 	
-	public Resturant(String name, int numOfSeats, int maxCustomersPerDay) {
+	public Resturant(String name, int numOfSeats, int maxCustomersPerDay, int maxWaitersInShift, int maxCustomersCuncurrentPerWaiter, int maxCustomersPerShift) {
 		super();
 		this.name = name;
 		this.numOfSeats = numOfSeats;
 		this.maxCustomersPerDay = maxCustomersPerDay;
+		this.maxWaitersInShift = maxWaitersInShift;
+		this.maxCustomersCuncurrentPerWaiter = maxCustomersCuncurrentPerWaiter;
+		this.maxCustomersPerShift = maxCustomersPerShift;
 		
 		FileHandler restHandler;
 		try {
@@ -89,143 +92,89 @@ public class Resturant implements Runnable{
 	public void setMaxCustomersPerShift(int maxCustomersPerShift) {
 		this.maxCustomersPerShift = maxCustomersPerShift;
 	}
+	
+	public void customerDone(Customer c){
+		diningCustomers.remove(c);
+	}
 
 	public void addWaiter(Waiter newWaiter) {
-		allWaiters.add(newWaiter);
-		newWaiter.start();
+		if(workingWaiters.size() < maxWaitersInShift){
+			workingWaiters.add(newWaiter);
+			newWaiter.start();
+		}
+		else waitingWaiters.add(newWaiter);
 	}
 	
 	public void addCustomer(Customer newCustomer) {
-		allCustomers.add(newCustomer);
-		newCustomer.start();
+		Waiter tmp = workingWaiters.get(0);
+		if(diningCustomers.size() < numOfSeats){
+			for(int i = 0; i < workingWaiters.size(); i++)
+				if(tmp.getServedCustomerNum() > workingWaiters.get(i).getServedCustomerNum())
+					tmp = workingWaiters.get(i);
+			diningCustomers.add(newCustomer);
+			tmp.addCustomer(newCustomer);
+			newCustomer.setTheWaiter(tmp);
+		}
+		else waitingCustomers.add(newCustomer);
 	}
 
-	public void closeAirport() {
+	public void closeResturant() {
 		isOpen = false;
 		synchronized (/*dummyWaiter*/this) {
 			/*dummyWaiter.*/notifyAll();
 		}
 	}
 
-	public synchronized void addWaitingWaiters(Waiter w) {
-		waitingWaiters.add(w);
-
-		System.out.println("After adding waiter #" + w.getId()
-				+ " there are " + waitingWaiters.size()
-				+ " waiters waiting");
-
-		synchronized (/*dummyWaiter*/this) {
-			if (waitingWaiters.size() == 1) {
-				/*dummyWaiter.*/notify(); // to let know there is an waiter
-										// waiting
-			}
-		}
-	}
-	
-	public synchronized void addWaitingAirplane(Customer c) {
-		waitingCustomers.add(c);
-
-		System.out.println("After adding customer #" + c.getId()
-				+ " there are " + waitingCustomers.size()
-				+ " customers waiting");
-
-		synchronized (/*dummyWaiter*/this) {
-			if (waitingCustomers.size() == 1) {
-				/*dummyWaiter.*/notify(); // to let know there is an customer
-										// waiting
-			}
-		}
-	}
-
 	public synchronized void notifyWaiter() {
 		Waiter firstWaiter = waitingWaiters.poll();
 		if (firstWaiter != null) {
-
-			System.out.println("Resturant is notifying waiter #"
-					+ firstWaiter.getId());
-			synchronized (firstWaiter) {
-				firstWaiter.notifyAll();
-			}
+			workingWaiters.add(firstWaiter);
+			firstWaiter.start();
 		}
-			try {
-
-				System.out.println("Resturant waits that  waiter #"
-						+ firstWaiter.getId()
-						+ " will announce it is finished");
-
-				wait(); // wait till the waiter finishes
-
-				System.out.println("Resturant was announced that  waiter #"
-						+ firstWaiter.getId() + " is finished");
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 	}
 	
 	public synchronized void notifyCustomer() {
-		Customer firstCustomer = waitingCustomers.poll();
-		if (firstCustomer != null) {
-
-			System.out.println("Resturant is notifying customer #"
-					+ firstCustomer.getId());
-			synchronized (firstCustomer) {
-				firstCustomer.notifyAll();
-			}
+		Waiter tmp = workingWaiters.get(0);
+		if(diningCustomers.size() < numOfSeats){
+			for(int i = 0; i < workingWaiters.size(); i++)
+				if(tmp.getServedCustomerNum() > workingWaiters.get(i).getServedCustomerNum())
+					tmp = workingWaiters.get(i);
+			Customer firstCustomer = waitingCustomers.poll();
+			diningCustomers.add(firstCustomer);
+			tmp.addCustomer(firstCustomer);
 		}
-			try {
-
-				System.out.println("Resturant waits that  customer #"
-						+ firstCustomer.getId()
-						+ " will announce it is finished");
-
-				wait(); // wait till the customer finishes
-
-				System.out.println("Resturant was announced that  customer #"
-						+ firstCustomer.getId() + " is finished");
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 	}
 
-	public void run() {
-		System.out.println("In Resturant::run");
+	public void open() {
+		System.out.println("Resturant: " + name + " is open");
 		while (isOpen) {
-			if (!waitingWaiters.isEmpty()) {
-				notifyWaiter();
-			} else {
-				synchronized (/*dummyWaiter*/this) {
-					try {
-						System.out.println("Resturant has no witers waiting");
-						/*dummyWaiter.*/wait(); // wait till there is an waiter
-											// waiting
-						System.out
-								.println("Resturant recieved a message there is an waiter waiting");
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			if (!waitingCustomers.isEmpty()) {
+			if (!waitingWaiters.isEmpty())
+				if(workingWaiters.size() < maxWaitersInShift)
+					notifyWaiter();
+			if (!waitingCustomers.isEmpty())
 				notifyCustomer();
-			} else {
-				synchronized (/*dummyWaiter*/this) {
-					try {
-						System.out.println("Resturant has no customers waiting");
-						/*dummyWaiter.*/wait(); // wait till there is an customer
-											// waiting
-						System.out
-								.println("Resturant recieved a message there is an customer waiting");
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+			for(int i = 0; i < workingWaiters.size(); i++)
+				if(workingWaiters.get(i).getServedCustomerNum() == maxCustomersPerShift){
+					workingWaiters.get(i).endShift();
+					int temp = i;
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							try {
+								workingWaiters.get(temp).join();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							workingWaiters.remove(temp);
+						}
+					});
 				}
-			}
 		}
 
 		System.out.println(Calendar.getInstance().getTimeInMillis()
-				+ " Resturant is closing");
+				+ " Resturant " + name + " is closing");
 	}
 
 }
